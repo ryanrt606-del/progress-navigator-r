@@ -291,6 +291,11 @@ function PlanView({
   const addInputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
+  );
+
   useEffect(() => {
     if (editingId) editInputRef.current?.focus();
   }, [editingId]);
@@ -298,6 +303,14 @@ function PlanView({
   useEffect(() => {
     if (addingTask) addInputRef.current?.focus();
   }, [addingTask]);
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = plan.steps.findIndex((s) => s.id === active.id);
+    const newIndex = plan.steps.findIndex((s) => s.id === over.id);
+    onUpdate({ ...plan, steps: arrayMove(plan.steps, oldIndex, newIndex) });
+  }
 
   function handleAddTask() {
     const trimmed = newTaskText.trim();
