@@ -477,10 +477,38 @@ function PlanView({
             </button>
           ))}
 
-          {plan.steps.length === 0 && (
+          {plan.steps.length === 0 && !addingTask && (
             <div className="text-center py-10 text-muted-foreground text-sm">
               No tasks in this plan.
             </div>
+          )}
+
+          {/* Add Task */}
+          {addingTask ? (
+            <div className="flex items-center gap-3 rounded-2xl p-4 border border-primary/50 bg-card shadow-[0_0_0_2px_hsl(20_100%_60%/0.15)]">
+              <Plus size={18} className="text-primary shrink-0" />
+              <input
+                ref={addInputRef}
+                value={newTaskText}
+                onChange={(e) => setNewTaskText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { e.preventDefault(); handleAddTask(); }
+                  if (e.key === "Escape") { setAddingTask(false); setNewTaskText(""); }
+                }}
+                onBlur={handleAddTask}
+                placeholder="Type new task…"
+                className="flex-1 bg-transparent text-sm text-foreground outline-none border-none leading-snug caret-primary placeholder:text-muted-foreground"
+              />
+              <span className="text-xs text-muted-foreground/40">Enter to add</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => setAddingTask(true)}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-muted-foreground hover:text-foreground border border-dashed border-border hover:border-primary/40 hover:bg-secondary/50 transition-all"
+            >
+              <Plus size={15} />
+              Add Task
+            </button>
           )}
         </div>
       </div>
