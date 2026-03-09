@@ -268,6 +268,13 @@ function PlanView({
 }) {
   const pct = getCompletion(plan);
   const done = plan.steps.filter((s) => s.completed).length;
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingId) editInputRef.current?.focus();
+  }, [editingId]);
 
   function toggleStep(id: string) {
     onUpdate({
@@ -276,6 +283,26 @@ function PlanView({
         s.id === id ? { ...s, completed: !s.completed } : s
       ),
     });
+  }
+
+  function startEdit(step: Step) {
+    setEditingId(step.id);
+    setEditText(step.text);
+  }
+
+  function saveEdit(id: string) {
+    const trimmed = editText.trim();
+    if (trimmed) {
+      onUpdate({
+        ...plan,
+        steps: plan.steps.map((s) => s.id === id ? { ...s, text: trimmed } : s),
+      });
+    }
+    setEditingId(null);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
   }
 
   function handleReset() {
@@ -311,7 +338,6 @@ function PlanView({
 
         {/* Progress Hero Card */}
         <div className="rounded-2xl gradient-hero p-6 mb-5 shadow-brand relative overflow-hidden">
-          {/* Background decoration */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-8 translate-x-8" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-8 -translate-x-6" />
 
@@ -372,34 +398,61 @@ function PlanView({
           </h2>
 
           {plan.steps.map((step, idx) => (
-            <button
+            <div
               key={step.id}
-              onClick={() => toggleStep(step.id)}
               className={`
-                w-full text-left flex items-start gap-3 rounded-2xl p-4 border transition-all duration-150
-                ${step.completed
-                  ? "bg-secondary/60 border-border/50 opacity-70"
-                  : "bg-card border-border hover:border-primary/30 hover:bg-secondary/50 hover:shadow-[0_2px_12px_-2px_hsl(20_100%_60%/0.15)]"
+                w-full flex items-start gap-3 rounded-2xl p-4 border transition-all duration-150
+                ${editingId === step.id
+                  ? "bg-card border-primary/50 shadow-[0_0_0_2px_hsl(20_100%_60%/0.15)]"
+                  : step.completed
+                    ? "bg-secondary/60 border-border/50 opacity-70"
+                    : "bg-card border-border"
                 }
-                active:scale-[0.99]
               `}
             >
-              <div className="mt-0.5 shrink-0">
+              {/* Checkbox — always toggles completion */}
+              <button
+                onClick={() => { if (editingId !== step.id) toggleStep(step.id); }}
+                className="mt-0.5 shrink-0 hover:scale-110 transition-transform"
+                aria-label={step.completed ? "Mark incomplete" : "Mark complete"}
+              >
                 {step.completed ? (
                   <CheckCircle2 size={18} className="text-primary" />
                 ) : (
                   <Circle size={18} className="text-muted-foreground/50" />
                 )}
-              </div>
+              </button>
+
+              {/* Text / Edit input */}
               <div className="flex-1 min-w-0">
-                <span className={`text-sm leading-snug ${step.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                  {step.text}
-                </span>
+                {editingId === step.id ? (
+                  <input
+                    ref={editInputRef}
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { e.preventDefault(); saveEdit(step.id); }
+                      if (e.key === "Escape") cancelEdit();
+                    }}
+                    onBlur={() => saveEdit(step.id)}
+                    className="w-full bg-transparent text-sm text-foreground outline-none border-none leading-snug caret-primary"
+                  />
+                ) : (
+                  <button
+                    onClick={() => startEdit(step)}
+                    className={`w-full text-left text-sm leading-snug transition-colors ${
+                      step.completed ? "line-through text-muted-foreground" : "text-foreground hover:text-primary"
+                    }`}
+                  >
+                    {step.text}
+                  </button>
+                )}
               </div>
+
               <span className="shrink-0 text-xs text-muted-foreground/40 mt-0.5">
                 #{idx + 1}
               </span>
-            </button>
+            </div>
           ))}
 
           {plan.steps.length === 0 && (
