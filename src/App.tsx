@@ -279,6 +279,22 @@ function PlanView({
     if (editingId) editInputRef.current?.focus();
   }, [editingId]);
 
+  useEffect(() => {
+    if (addingTask) addInputRef.current?.focus();
+  }, [addingTask]);
+
+  function handleAddTask() {
+    const trimmed = newTaskText.trim();
+    if (trimmed) {
+      onUpdate({
+        ...plan,
+        steps: [...plan.steps, { id: generateId(), text: trimmed, completed: false }],
+      });
+    }
+    setNewTaskText("");
+    setAddingTask(false);
+  }
+
   function toggleStep(id: string) {
     onUpdate({
       ...plan,
