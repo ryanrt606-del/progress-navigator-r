@@ -398,33 +398,30 @@ function PlanView({
           </h2>
 
           {plan.steps.map((step, idx) => (
-            <div
+            <button
               key={step.id}
+              onClick={() => { if (editingId !== step.id) toggleStep(step.id); }}
               className={`
-                w-full flex items-start gap-3 rounded-2xl p-4 border transition-all duration-150
+                w-full text-left flex items-start gap-3 rounded-2xl p-4 border transition-all duration-150 active:scale-[0.99]
                 ${editingId === step.id
                   ? "bg-card border-primary/50 shadow-[0_0_0_2px_hsl(20_100%_60%/0.15)]"
                   : step.completed
                     ? "bg-secondary/60 border-border/50 opacity-70"
-                    : "bg-card border-border"
+                    : "bg-card border-border hover:border-primary/30 hover:bg-secondary/50"
                 }
               `}
             >
-              {/* Checkbox — always toggles completion */}
-              <button
-                onClick={() => { if (editingId !== step.id) toggleStep(step.id); }}
-                className="mt-0.5 shrink-0 hover:scale-110 transition-transform"
-                aria-label={step.completed ? "Mark incomplete" : "Mark complete"}
-              >
+              {/* Checkbox icon */}
+              <div className="mt-0.5 shrink-0">
                 {step.completed ? (
                   <CheckCircle2 size={18} className="text-primary" />
                 ) : (
                   <Circle size={18} className="text-muted-foreground/50" />
                 )}
-              </button>
+              </div>
 
               {/* Text / Edit input */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0" onClick={(e) => editingId === step.id && e.stopPropagation()}>
                 {editingId === step.id ? (
                   <input
                     ref={editInputRef}
@@ -432,27 +429,33 @@ function PlanView({
                     onChange={(e) => setEditText(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") { e.preventDefault(); saveEdit(step.id); }
-                      if (e.key === "Escape") cancelEdit();
+                      if (e.key === "Escape") { e.stopPropagation(); cancelEdit(); }
                     }}
                     onBlur={() => saveEdit(step.id)}
+                    onClick={(e) => e.stopPropagation()}
                     className="w-full bg-transparent text-sm text-foreground outline-none border-none leading-snug caret-primary"
                   />
                 ) : (
-                  <button
-                    onClick={() => startEdit(step)}
-                    className={`w-full text-left text-sm leading-snug transition-colors ${
-                      step.completed ? "line-through text-muted-foreground" : "text-foreground hover:text-primary"
-                    }`}
-                  >
+                  <span className={`text-sm leading-snug ${step.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
                     {step.text}
-                  </button>
+                  </span>
                 )}
               </div>
 
-              <span className="shrink-0 text-xs text-muted-foreground/40 mt-0.5">
-                #{idx + 1}
-              </span>
-            </div>
+              {/* Edit icon / task number */}
+              <div className="shrink-0 flex items-center gap-2 mt-0.5">
+                {editingId !== step.id && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); startEdit(step); }}
+                    className="text-muted-foreground/30 hover:text-primary transition-colors p-0.5 rounded"
+                    aria-label="Edit task"
+                  >
+                    <Pencil size={13} />
+                  </button>
+                )}
+                <span className="text-xs text-muted-foreground/30">#{idx + 1}</span>
+              </div>
+            </button>
           ))}
 
           {plan.steps.length === 0 && (
