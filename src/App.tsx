@@ -1,5 +1,21 @@
 import { useState, useEffect, useRef } from "react";
-import { Rocket, Plus, ChevronLeft, CheckCircle2, Circle, Trash2, RotateCcw, X, Sparkles, Calendar, ListChecks, TrendingUp, Pencil } from "lucide-react";
+import { Rocket, Plus, ChevronLeft, CheckCircle2, Circle, Trash2, RotateCcw, X, Sparkles, Calendar, ListChecks, TrendingUp, Pencil, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
