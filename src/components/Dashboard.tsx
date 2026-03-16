@@ -2,6 +2,8 @@ import { Rocket, Plus, CheckCircle2, ListChecks, TrendingUp, Download } from "lu
 import { PlanCard } from "@/components/PlanCard";
 import { getCompletion, type PlanWithSteps } from "@/hooks/usePlans";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { ProgressTimeline } from "@/components/ProgressTimeline";
+import { YearProgressMap } from "@/components/YearProgressMap";
 
 interface DashboardProps {
   plans: PlanWithSteps[];
@@ -73,6 +75,16 @@ export function Dashboard({ plans, loading, onSelectPlan, onNewPlan }: Dashboard
             ))}
           </div>
         )}
+
+        {/* ── Progress Timeline ────────────────────────────────────────────── */}
+        <div className="mb-4">
+          <ProgressTimeline />
+        </div>
+
+        {/* ── Year Progress Heatmap ────────────────────────────────────────── */}
+        <div className="mb-6">
+          <YearProgressMap />
+        </div>
 
         {/* Plans list */}
         {loading ? (
