@@ -105,6 +105,19 @@ export function usePlans() {
   const toggleStep = useCallback(
     async (stepId: string, completed: boolean) => {
       await db.steps.update(stepId, { completed });
+
+      // Record a history entry only when marking complete (not uncomplete)
+      if (completed) {
+        const step = await db.steps.get(stepId);
+        if (step) {
+          await db.history.add({
+            planId: step.planId,
+            taskId: stepId,
+            completedAt: new Date().toISOString(),
+          });
+        }
+      }
+
       await refresh();
     },
     [refresh]
@@ -162,9 +175,10 @@ export function usePlans() {
 
   const deletePlan = useCallback(
     async (planId: string) => {
-      await db.transaction("rw", db.plans, db.steps, async () => {
+      await db.transaction("rw", db.plans, db.steps, db.history, async () => {
         await db.plans.delete(planId);
         await db.steps.where("planId").equals(planId).delete();
+        await db.history.where("planId").equals(planId).delete();
       });
       await refresh();
     },
