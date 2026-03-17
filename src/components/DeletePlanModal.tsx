@@ -1,4 +1,5 @@
-import { Trash2, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Trash2, X, AlertTriangle } from "lucide-react";
 
 interface DeletePlanModalProps {
   planTitle: string;
@@ -8,50 +9,73 @@ interface DeletePlanModalProps {
 
 export function DeletePlanModal({ planTitle, onConfirm, onCancel }: DeletePlanModalProps) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+    <motion.div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 sm:p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
       onClick={(e) => e.target === e.currentTarget && onCancel()}
     >
-      <div className="w-full max-w-sm rounded-2xl bg-card border border-border shadow-[0_20px_60px_-10px_hsl(220_16%_4%/0.8)] animate-in fade-in-0 zoom-in-95 duration-200">
-        <div className="flex items-center justify-between px-6 pt-6 pb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center">
-              <Trash2 size={14} className="text-destructive" />
+      {/* Backdrop */}
+      <motion.div
+        className="absolute inset-0 bg-background/75 backdrop-blur-md"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      />
+
+      <motion.div
+        className="relative w-full max-w-sm rounded-3xl bg-card border border-border shadow-elevated overflow-hidden"
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.97 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      >
+        {/* Danger accent line */}
+        <div className="h-1 w-full bg-destructive/60" />
+
+        <div className="flex items-center justify-between px-6 pt-5 pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-destructive/15 flex items-center justify-center">
+              <AlertTriangle size={15} className="text-destructive" />
             </div>
-            <h2 className="font-semibold text-foreground">Delete Plan</h2>
+            <h2 className="font-bold text-foreground text-base">Delete Plan?</h2>
           </div>
           <button
             onClick={onCancel}
-            className="text-muted-foreground hover:text-foreground transition-colors rounded-lg p-1 hover:bg-secondary"
+            className="text-muted-foreground hover:text-foreground transition-colors rounded-lg p-1.5 hover:bg-secondary"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         </div>
 
         <div className="px-6 pb-5">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-foreground">"{planTitle}"</span>? This action
-            cannot be undone and all tasks will be permanently removed.
+            You're about to permanently delete{" "}
+            <span className="font-semibold text-foreground">"{planTitle}"</span>.
+            All tasks will be removed. This can't be undone.
           </p>
         </div>
 
         <div className="px-6 pb-6 flex gap-3">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={onCancel}
-            className="flex-1 rounded-xl py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border hover:border-border/80 bg-secondary hover:bg-secondary/80 transition-all"
+            className="flex-1 rounded-2xl py-3 text-sm font-medium text-muted-foreground border border-border bg-secondary hover:bg-secondary/80 transition-colors"
           >
             Cancel
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={onConfirm}
-            className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white bg-destructive hover:bg-destructive/90 transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 rounded-2xl py-3 text-sm font-semibold text-white bg-destructive hover:bg-destructive/90 transition-colors flex items-center justify-center gap-1.5 shadow-[0_4px_16px_-4px_hsl(0_72%_55%/0.5)]"
           >
             <Trash2 size={14} />
             Delete
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
