@@ -1,8 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Rocket, Plus, CheckCircle2, Zap, TrendingUp, ArrowRight, Download,
-  Flame, Target, Calendar,
-} from "lucide-react";
+import { Plus, Rocket, Zap, CheckCircle2, Target, Download } from "lucide-react";
 import { getCompletion, formatDate, type PlanWithSteps } from "@/hooks/usePlans";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { PlanCard } from "@/components/PlanCard";
@@ -14,14 +11,24 @@ interface HomeScreenProps {
   onNewPlan: () => void;
 }
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-};
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 const fadeUp = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] as const } },
 };
+
+function AnimatedNumber({ value }: { value: number }) {
+  return (
+    <motion.span
+      key={value}
+      initial={{ opacity: 0, y: 8, scale: 0.85 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+    >
+      {value}
+    </motion.span>
+  );
+}
 
 export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScreenProps) {
   const { isInstallable, install } = usePWAInstall();
@@ -35,23 +42,22 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
     .slice(0, 3);
 
   const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="h-full overflow-y-auto overscroll-contain">
-      <div className="max-w-xl mx-auto px-4 pt-14 pb-6">
+      <div className="max-w-xl mx-auto px-4 pt-14 pb-6 space-y-8">
 
         {/* ── Header ── */}
         <motion.div
-          className="flex items-start justify-between mb-8"
+          className="flex items-start justify-between"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <div>
-            <p className="text-muted-foreground text-sm font-medium mb-0.5">{greeting} 👋</p>
-            <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
+            <p className="text-muted-foreground text-xs font-medium mb-0.5 tracking-wide">{greeting} 👋</p>
+            <h1 className="text-[1.6rem] font-extrabold tracking-tight leading-tight">
               Progress
               <span className="text-gradient"> Navigator</span>
             </h1>
@@ -59,18 +65,18 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
           <div className="flex items-center gap-2 mt-1">
             {isInstallable && (
               <motion.button
-                whileTap={{ scale: 0.93 }}
+                whileTap={{ scale: 0.92 }}
                 onClick={install}
-                className="flex items-center gap-1.5 rounded-xl bg-secondary border border-border text-muted-foreground text-xs font-medium px-3 py-2"
+                className="flex items-center gap-1.5 rounded-xl bg-secondary text-muted-foreground text-xs font-medium px-3 py-2 tap-highlight-none"
               >
-                <Download size={13} />
+                <Download size={12} />
                 Install
               </motion.button>
             )}
             <motion.button
-              whileTap={{ scale: 0.93 }}
+              whileTap={{ scale: 0.92 }}
               onClick={onNewPlan}
-              className="flex items-center gap-1.5 rounded-xl gradient-brand shadow-brand text-white text-sm font-semibold px-4 py-2"
+              className="flex items-center gap-1.5 rounded-xl gradient-brand shadow-brand text-white text-sm font-semibold px-4 py-2 tap-highlight-none"
             >
               <Plus size={15} />
               New
@@ -78,92 +84,116 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
           </div>
         </motion.div>
 
-        {/* ── Hero progress card ── */}
+        {/* ── Compact Hero Progress ── */}
         {plans.length > 0 && totalTasks > 0 && (
           <motion.div
-            className="rounded-3xl gradient-hero p-6 mb-6 shadow-brand relative overflow-hidden"
-            initial={{ opacity: 0, scale: 0.97, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="relative"
           >
-            {/* decorative circles */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-16 translate-x-16" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-12 -translate-x-10" />
-            <div className="relative">
-              <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1">
-                Overall Progress
-              </p>
-              <div className="flex items-end justify-between mb-4">
-                <motion.p
-                  className="text-white text-6xl font-black tracking-tight leading-none"
-                  initial={{ opacity: 0, scale: 0.7 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
-                >
-                  {overallPct}%
-                </motion.p>
-                <div className="text-right">
-                  <p className="text-white/50 text-xs mb-0.5">Tasks done</p>
-                  <p className="text-white text-2xl font-bold leading-none">
+            {/* Ambient glow behind percentage */}
+            <div
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-40 h-40 rounded-full pointer-events-none"
+              style={{
+                background: "radial-gradient(circle, hsl(20 100% 60% / 0.13) 0%, transparent 70%)",
+                filter: "blur(24px)",
+              }}
+            />
+
+            <div className="relative flex items-end gap-6">
+              {/* Giant percentage */}
+              <div>
+                <p className="text-[4.5rem] font-black leading-none tracking-tighter text-gradient tabular-nums">
+                  <AnimatedNumber value={overallPct} />
+                  <span className="text-2xl text-muted-foreground/60 font-bold">%</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">Overall completion</p>
+              </div>
+
+              {/* Right stats */}
+              <div className="pb-3 flex flex-col gap-1.5 text-right ml-auto">
+                <div>
+                  <p className="text-lg font-extrabold text-foreground leading-none tabular-nums">
                     {completedTasks}
-                    <span className="text-white/40 text-base font-normal"> / {totalTasks}</span>
+                    <span className="text-muted-foreground/40 text-sm font-normal"> / {totalTasks}</span>
                   </p>
+                  <p className="text-[11px] text-muted-foreground">tasks done</p>
+                </div>
+                <div>
+                  <p className="text-lg font-extrabold text-foreground leading-none tabular-nums">{activePlans.length}</p>
+                  <p className="text-[11px] text-muted-foreground">active plans</p>
                 </div>
               </div>
-              <div className="h-2.5 w-full rounded-full bg-white/20 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full bg-white"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${overallPct}%` }}
-                  transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                />
-              </div>
-              <div className="flex items-center gap-1.5 mt-3 text-white/70 text-xs">
-                <Target size={11} />
-                <span>{activePlans.length} active plan{activePlans.length !== 1 ? "s" : ""}</span>
-              </div>
             </div>
+
+            {/* Thin animated progress bar */}
+            <div className="mt-4 h-1 w-full rounded-full bg-secondary/60 overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: "var(--gradient-brand)" }}
+                initial={{ width: 0 }}
+                animate={{ width: `${overallPct}%` }}
+                transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              />
+            </div>
+
+            {/* Glow dot at progress position */}
+            {overallPct > 0 && (
+              <motion.div
+                className="absolute top-[calc(100%-2px)] w-2 h-2 rounded-full -translate-y-1/2"
+                style={{
+                  background: "hsl(20 100% 60%)",
+                  boxShadow: "0 0 8px 3px hsl(20 100% 60% / 0.5)",
+                }}
+                initial={{ left: 0, opacity: 0 }}
+                animate={{ left: `${Math.min(overallPct, 97)}%`, opacity: 1 }}
+                transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              />
+            )}
           </motion.div>
         )}
 
-        {/* ── Quick stats row ── */}
+        {/* ── Inline stats row ── */}
         <AnimatePresence>
           {plans.length > 0 && (
             <motion.div
-              className="grid grid-cols-3 gap-3 mb-6"
+              className="flex items-center gap-0"
               variants={stagger}
               initial="hidden"
               animate="show"
             >
               {[
-                { icon: <Rocket size={16} />, label: "Plans", value: plans.length, color: "text-primary" },
-                { icon: <Zap size={16} />, label: "Active", value: activePlans.length, color: "text-primary" },
-                { icon: <CheckCircle2 size={16} />, label: "Done", value: completedTasks, color: "text-primary" },
-              ].map((stat) => (
+                { icon: <Rocket size={15} />, label: "Plans", value: plans.length },
+                { icon: <Zap size={15} />, label: "Active", value: activePlans.length },
+                { icon: <CheckCircle2 size={15} />, label: "Done", value: completedTasks },
+                { icon: <Target size={15} />, label: "Tasks", value: totalTasks },
+              ].map((stat, i) => (
                 <motion.div
                   key={stat.label}
                   variants={fadeUp}
-                  className="rounded-2xl card-glass p-4 text-center"
+                  className="flex-1 flex flex-col items-center gap-1 py-3 relative"
                 >
-                  <div className={`flex justify-center mb-2 ${stat.color}`}>{stat.icon}</div>
-                  <p className="text-2xl font-extrabold text-foreground leading-none mb-1">{stat.value}</p>
-                  <p className="text-[11px] text-muted-foreground font-medium">{stat.label}</p>
+                  {/* vertical divider except first */}
+                  {i > 0 && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-px h-6 bg-border/60" />
+                  )}
+                  <div className="text-primary/80">{stat.icon}</div>
+                  <p className="text-xl font-extrabold text-foreground leading-none tabular-nums">
+                    <AnimatedNumber value={stat.value} />
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-medium">{stat.label}</p>
                 </motion.div>
               ))}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── Recent plans ── */}
+        {/* ── Recent Plans ── */}
         {loading ? (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {[1, 2].map((i) => (
-              <div key={i} className="rounded-2xl card-glass p-5 overflow-hidden relative">
-                <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-                <div className="h-4 bg-secondary rounded-full w-3/4 mb-3" />
-                <div className="h-2 bg-secondary rounded-full mb-3" />
-                <div className="h-3 bg-secondary rounded-full w-1/3" />
-              </div>
+              <div key={i} className="rounded-2xl surface p-5 overflow-hidden relative h-20 animate-pulse" />
             ))}
           </div>
         ) : plans.length === 0 ? (
@@ -173,8 +203,15 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="w-20 h-20 rounded-3xl gradient-brand mx-auto flex items-center justify-center shadow-brand mb-5">
-              <Rocket size={32} className="text-white" />
+            {/* Glowing rocket icon */}
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div
+                className="absolute inset-0 rounded-3xl"
+                style={{ background: "var(--gradient-brand)", opacity: 0.15, filter: "blur(16px)" }}
+              />
+              <div className="relative w-20 h-20 rounded-3xl gradient-brand flex items-center justify-center shadow-brand">
+                <Rocket size={32} className="text-white" />
+              </div>
             </div>
             <h2 className="text-foreground font-bold text-xl mb-2">No plans yet</h2>
             <p className="text-muted-foreground text-sm mb-8 max-w-xs mx-auto leading-relaxed">
@@ -183,7 +220,7 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
             <motion.button
               whileTap={{ scale: 0.94 }}
               onClick={onNewPlan}
-              className="inline-flex items-center gap-2 rounded-2xl gradient-brand shadow-brand text-white text-sm font-semibold px-6 py-3.5"
+              className="inline-flex items-center gap-2 rounded-2xl gradient-brand shadow-brand text-white text-sm font-semibold px-6 py-3.5 tap-highlight-none"
             >
               <Plus size={16} />
               Create First Plan
@@ -191,13 +228,13 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
           </motion.div>
         ) : (
           <motion.div variants={stagger} initial="hidden" animate="show">
-            <motion.div variants={fadeUp} className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
-                <Flame size={13} className="text-primary" />
-                Recent Plans
-              </h2>
-            </motion.div>
-            <div className="space-y-3">
+            <motion.p
+              variants={fadeUp}
+              className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-4"
+            >
+              Recent Plans
+            </motion.p>
+            <div className="space-y-2.5">
               {recentPlans.map((plan) => (
                 <motion.div key={plan.id} variants={fadeUp}>
                   <PlanCard plan={plan} onClick={() => onSelectPlan(plan.id)} />

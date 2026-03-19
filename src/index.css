@@ -4,29 +4,25 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap');
 
-/* Design System — Dark theme with orange-pink gradient accents */
-
 @layer base {
   :root {
-    /* Dark backgrounds */
-    --background: 220 18% 7%;
-    --foreground: 220 15% 93%;
+    --background: 222 20% 6%;
+    --foreground: 220 15% 94%;
 
-    --card: 220 16% 11%;
-    --card-foreground: 220 15% 93%;
+    --card: 222 18% 9%;
+    --card-foreground: 220 15% 94%;
 
-    --popover: 220 16% 11%;
-    --popover-foreground: 220 15% 93%;
+    --popover: 222 18% 9%;
+    --popover-foreground: 220 15% 94%;
 
-    /* Orange-pink gradient accent */
     --primary: 20 100% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 17%;
-    --secondary-foreground: 220 15% 72%;
+    --secondary: 222 16% 14%;
+    --secondary-foreground: 220 15% 65%;
 
-    --muted: 220 14% 14%;
-    --muted-foreground: 220 10% 48%;
+    --muted: 222 14% 12%;
+    --muted-foreground: 220 10% 45%;
 
     --accent: 330 90% 62%;
     --accent-foreground: 0 0% 100%;
@@ -34,31 +30,37 @@
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 14% 19%;
-    --input: 220 14% 19%;
+    --border: 222 16% 16%;
+    --input: 222 16% 16%;
     --ring: 20 100% 60%;
 
     --radius: 1rem;
 
-    /* Custom tokens */
+    /* Brand gradients */
     --gradient-brand: linear-gradient(135deg, hsl(20 100% 60%), hsl(330 90% 62%));
-    --gradient-brand-soft: linear-gradient(135deg, hsl(20 100% 60% / 0.15), hsl(330 90% 62% / 0.15));
-    --gradient-card: linear-gradient(160deg, hsl(220 16% 13%), hsl(220 14% 9%));
+    --gradient-brand-soft: linear-gradient(135deg, hsl(20 100% 60% / 0.12), hsl(330 90% 62% / 0.12));
+    --gradient-card: linear-gradient(160deg, hsl(222 18% 10%), hsl(222 14% 7%));
     --gradient-hero: linear-gradient(135deg, hsl(20 100% 55%), hsl(330 85% 58%));
+
+    /* Glows */
+    --glow-primary: 0 0 40px hsl(20 100% 60% / 0.20), 0 0 80px hsl(20 100% 60% / 0.08);
+    --glow-primary-sm: 0 0 20px hsl(20 100% 60% / 0.25), 0 0 40px hsl(20 100% 60% / 0.10);
+    --glow-accent: 0 0 40px hsl(330 90% 62% / 0.18);
+
+    /* Shadows */
     --shadow-brand: 0 8px 32px -8px hsl(20 100% 60% / 0.45);
     --shadow-brand-sm: 0 4px 16px -4px hsl(20 100% 60% / 0.3);
-    --shadow-card: 0 4px 28px -4px hsl(220 16% 2% / 0.7);
-    --shadow-glow: 0 0 48px hsl(20 100% 60% / 0.12);
-    --shadow-elevated: 0 16px 48px -12px hsl(220 16% 2% / 0.8);
+    --shadow-card: 0 4px 32px -4px hsl(222 20% 2% / 0.8);
+    --shadow-elevated: 0 20px 60px -16px hsl(222 20% 2% / 0.9);
 
     /* Sidebar */
-    --sidebar-background: 220 18% 7%;
-    --sidebar-foreground: 220 15% 93%;
+    --sidebar-background: 222 20% 6%;
+    --sidebar-foreground: 220 15% 94%;
     --sidebar-primary: 20 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 17%;
-    --sidebar-accent-foreground: 220 15% 72%;
-    --sidebar-border: 220 14% 19%;
+    --sidebar-accent: 222 16% 14%;
+    --sidebar-accent-foreground: 220 15% 65%;
+    --sidebar-border: 222 16% 16%;
     --sidebar-ring: 20 100% 60%;
   }
 }
@@ -80,66 +82,55 @@
     overscroll-behavior: none;
   }
 
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
     border-radius: 4px;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.4);
-  }
 }
 
 @layer utilities {
-  .gradient-brand {
-    background: var(--gradient-brand);
-  }
-  .gradient-brand-soft {
-    background: var(--gradient-brand-soft);
-  }
-  .gradient-hero {
-    background: var(--gradient-hero);
-  }
-  .gradient-card {
-    background: var(--gradient-card);
-  }
-  .shadow-brand {
-    box-shadow: var(--shadow-brand);
-  }
-  .shadow-brand-sm {
-    box-shadow: var(--shadow-brand-sm);
-  }
-  .shadow-elevated {
-    box-shadow: var(--shadow-elevated);
-  }
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
+  .gradient-brand { background: var(--gradient-brand); }
+  .gradient-brand-soft { background: var(--gradient-brand-soft); }
+  .gradient-hero { background: var(--gradient-hero); }
+  .gradient-card { background: var(--gradient-card); }
+
+  .shadow-brand { box-shadow: var(--shadow-brand); }
+  .shadow-brand-sm { box-shadow: var(--shadow-brand-sm); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .glow-primary { box-shadow: var(--glow-primary); }
+  .glow-primary-sm { box-shadow: var(--glow-primary-sm); }
+
   .text-gradient {
     background: var(--gradient-brand);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .card-glass {
-    background: linear-gradient(160deg, hsl(220 16% 13%), hsl(220 14% 9%));
-    border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-card);
-  }
-  .tap-highlight-none {
-    -webkit-tap-highlight-color: transparent;
+
+  /* Borderless glass — no thick border, faint gradient border via box-shadow */
+  .surface {
+    background: var(--gradient-card);
+    box-shadow: 0 0 0 1px hsl(var(--border) / 0.6), var(--shadow-card);
   }
 
-  .pb-safe {
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  /* Glowing surface: faint gradient top border + outer glow on hover/active */
+  .surface-glow {
+    background: var(--gradient-card);
+    box-shadow: 0 0 0 1px hsl(var(--border) / 0.5), var(--shadow-card);
+    transition: box-shadow 0.3s ease;
+  }
+  .surface-glow:hover,
+  .surface-glow:focus-within {
+    box-shadow:
+      0 0 0 1px hsl(20 100% 60% / 0.25),
+      0 0 24px hsl(20 100% 60% / 0.10),
+      var(--shadow-card);
   }
 
-  .pt-safe {
-    padding-top: max(0rem, env(safe-area-inset-top));
-  }
+  .tap-highlight-none { -webkit-tap-highlight-color: transparent; }
+
+  .pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+  .pt-safe { padding-top: max(0rem, env(safe-area-inset-top)); }
 }
