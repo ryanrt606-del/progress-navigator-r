@@ -26,9 +26,11 @@ function CustomTooltip({ active, payload, label }: any) {
     <div
       className="rounded-xl px-3 py-2 text-xs"
       style={{
-        background: "hsl(222 20% 9%)",
+        background: "hsl(222 20% 9% / 0.96)",
         border: "1px solid hsl(20 100% 60% / 0.2)",
-        boxShadow: "0 0 20px hsl(20 100% 60% / 0.12)",
+        boxShadow: "0 0 20px hsl(20 100% 60% / 0.1)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
       }}
     >
       <p className="text-muted-foreground mb-0.5 text-[11px]">{label}</p>
@@ -51,7 +53,7 @@ export function ProgressTimeline() {
   return (
     <div className="py-1">
       {/* Section label + toggle */}
-      <div className="flex items-center justify-between mb-4 px-1">
+      <div className="flex items-center justify-between mb-5 px-1">
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-primary" />
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
@@ -59,15 +61,15 @@ export function ProgressTimeline() {
           </span>
         </div>
 
-        {/* Pill toggle — no border box */}
-        <div className="flex items-center gap-1 bg-secondary/60 rounded-xl p-1">
+        {/* Pill toggle */}
+        <div className="flex items-center gap-0.5 bg-secondary/50 rounded-xl p-1">
           {(["7", "30"] as const).map((v) => (
             <motion.button
               key={v}
               onClick={() => setView(v)}
-              whileTap={{ scale: 0.92 }}
+              whileTap={{ scale: 0.9 }}
               className={`relative text-xs font-semibold px-3 py-1 rounded-lg transition-colors tap-highlight-none ${
-                view === v ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                view === v ? "text-foreground" : "text-muted-foreground hover:text-foreground/70"
               }`}
             >
               {view === v && (
@@ -75,10 +77,10 @@ export function ProgressTimeline() {
                   layoutId="timeline-tab"
                   className="absolute inset-0 rounded-lg"
                   style={{
-                    background: "linear-gradient(135deg, hsl(20 100% 60% / 0.18), hsl(330 90% 62% / 0.18))",
-                    boxShadow: "inset 0 0 0 1px hsl(20 100% 60% / 0.15)",
+                    background: "linear-gradient(135deg, hsl(20 100% 60% / 0.16), hsl(330 90% 62% / 0.16))",
+                    boxShadow: "inset 0 0 0 1px hsl(20 100% 60% / 0.14)",
                   }}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  transition={{ type: "spring", stiffness: 440, damping: 32 }}
                 />
               )}
               <span className="relative">{v}d</span>
@@ -88,54 +90,93 @@ export function ProgressTimeline() {
       </div>
 
       {loading ? (
-        <div className="h-36 bg-secondary/30 rounded-xl animate-pulse" />
+        <div className="h-36 bg-secondary/20 rounded-xl animate-pulse" />
       ) : !hasActiveData ? (
         <EmptyState />
       ) : (
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
           >
             {view === "7" ? (
-              <ResponsiveContainer width="100%" height={150}>
-                <BarChart data={activeData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
+              <ResponsiveContainer width="100%" height={155}>
+                <BarChart data={activeData} margin={{ top: 4, right: 2, left: -30, bottom: 0 }}>
                   <defs>
                     <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={C_START} />
-                      <stop offset="100%" stopColor={C_END} stopOpacity={0.6} />
+                      <stop offset="100%" stopColor={C_END} stopOpacity={0.55} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.4)" vertical={false} />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--primary) / 0.06)" }} />
-                  <Bar dataKey="count" fill="url(#barGrad)" radius={[5, 5, 0, 0]} maxBarSize={26} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border) / 0.3)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ fill: "hsl(var(--primary) / 0.05)", radius: 4 }}
+                  />
+                  <Bar
+                    dataKey="count"
+                    fill="url(#barGrad)"
+                    radius={[5, 5, 0, 0]}
+                    maxBarSize={28}
+                    isAnimationActive={true}
+                    animationDuration={700}
+                    animationEasing="ease-out"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <ResponsiveContainer width="100%" height={150}>
-                <LineChart data={activeData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
+              <ResponsiveContainer width="100%" height={155}>
+                <LineChart data={activeData} margin={{ top: 4, right: 2, left: -30, bottom: 0 }}>
                   <defs>
                     <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stopColor={C_START} />
                       <stop offset="100%" stopColor={C_END} />
                     </linearGradient>
-                    {/* glow filter */}
-                    <filter id="lineGlow">
-                      <feGaussianBlur stdDeviation="3" result="blur" />
+                    <filter id="lineGlow" x="-10%" y="-100%" width="120%" height="300%">
+                      <feGaussianBlur stdDeviation="2.5" result="blur" />
                       <feMerge>
                         <feMergeNode in="blur" />
                         <feMergeNode in="SourceGraphic" />
                       </feMerge>
                     </filter>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.4)" vertical={false} />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval={4} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border) / 0.3)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval={4}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip content={<CustomTooltip />} />
                   <Line
                     type="monotone"
@@ -143,8 +184,16 @@ export function ProgressTimeline() {
                     stroke="url(#lineGrad)"
                     strokeWidth={2.5}
                     dot={false}
-                    activeDot={{ r: 5, fill: C_START, strokeWidth: 0, style: { filter: "drop-shadow(0 0 6px hsl(20 100% 60% / 0.8))" } }}
+                    activeDot={{
+                      r: 5,
+                      fill: C_START,
+                      strokeWidth: 0,
+                      style: { filter: "drop-shadow(0 0 6px hsl(20 100% 60% / 0.85))" },
+                    }}
                     style={{ filter: "url(#lineGlow)" }}
+                    isAnimationActive={true}
+                    animationDuration={800}
+                    animationEasing="ease-out"
                   />
                 </LineChart>
               </ResponsiveContainer>

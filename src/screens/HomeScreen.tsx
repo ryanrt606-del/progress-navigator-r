@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Rocket, Zap, CheckCircle2, Target, Download } from "lucide-react";
 import { getCompletion, formatDate, type PlanWithSteps } from "@/hooks/usePlans";
@@ -17,31 +18,46 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
-function AnimatedNumber({ value }: { value: number }) {
-  return (
-    <motion.span
-      key={value}
-      initial={{ opacity: 0, y: 8, scale: 0.85 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
-    >
-      {value}
-    </motion.span>
-  );
+/** Smooth count-up 0 → target */
+function useCountUp(target: number, duration = 1100) {
+  const [value, setValue] = useState(0);
+  const raf = useRef<number>(0);
+  useEffect(() => {
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      setValue(Math.round(target * ease));
+      if (t < 1) raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [target, duration]);
+  return value;
+}
+
+function HeroPercent({ value }: { value: number }) {
+  const animated = useCountUp(value, 1100);
+  return <>{animated}</>;
+}
+
+function StatNumber({ value }: { value: number }) {
+  const animated = useCountUp(value, 900);
+  return <>{animated}</>;
 }
 
 export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScreenProps) {
   const { isInstallable, install } = usePWAInstall();
-  const totalTasks = plans.reduce((acc, p) => acc + p.steps.length, 0);
+  const totalTasks     = plans.reduce((acc, p) => acc + p.steps.length, 0);
   const completedTasks = plans.reduce((acc, p) => acc + p.steps.filter((s) => s.completed).length, 0);
-  const activePlans = plans.filter((p) => getCompletion(p.steps) < 100);
-  const overallPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const activePlans    = plans.filter((p) => getCompletion(p.steps) < 100);
+  const overallPct     = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const recentPlans = [...plans]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 3);
 
-  const hour = new Date().getHours();
+  const hour     = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
@@ -92,12 +108,12 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
           >
-            {/* Ambient glow behind percentage */}
+            {/* Ambient glow */}
             <div
-              className="absolute left-0 top-1/2 -translate-y-1/2 w-40 h-40 rounded-full pointer-events-none"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-44 h-44 rounded-full pointer-events-none"
               style={{
-                background: "radial-gradient(circle, hsl(20 100% 60% / 0.13) 0%, transparent 70%)",
-                filter: "blur(24px)",
+                background: "radial-gradient(circle, hsl(20 100% 60% / 0.11) 0%, transparent 70%)",
+                filter: "blur(28px)",
               }}
             />
 
@@ -105,8 +121,8 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
               {/* Giant percentage */}
               <div>
                 <p className="text-[4.5rem] font-black leading-none tracking-tighter text-gradient tabular-nums">
-                  <AnimatedNumber value={overallPct} />
-                  <span className="text-2xl text-muted-foreground/60 font-bold">%</span>
+                  <HeroPercent value={overallPct} />
+                  <span className="text-2xl text-muted-foreground/50 font-bold">%</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 font-medium">Overall completion</p>
               </div>
@@ -115,40 +131,43 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
               <div className="pb-3 flex flex-col gap-1.5 text-right ml-auto">
                 <div>
                   <p className="text-lg font-extrabold text-foreground leading-none tabular-nums">
-                    {completedTasks}
-                    <span className="text-muted-foreground/40 text-sm font-normal"> / {totalTasks}</span>
+                    <StatNumber value={completedTasks} />
+                    <span className="text-muted-foreground/35 text-sm font-normal"> / {totalTasks}</span>
                   </p>
                   <p className="text-[11px] text-muted-foreground">tasks done</p>
                 </div>
                 <div>
-                  <p className="text-lg font-extrabold text-foreground leading-none tabular-nums">{activePlans.length}</p>
+                  <p className="text-lg font-extrabold text-foreground leading-none tabular-nums">
+                    <StatNumber value={activePlans.length} />
+                  </p>
                   <p className="text-[11px] text-muted-foreground">active plans</p>
                 </div>
               </div>
             </div>
 
             {/* Thin animated progress bar */}
-            <div className="mt-4 h-1 w-full rounded-full bg-secondary/60 overflow-hidden">
+            <div className="mt-4 h-[3px] w-full rounded-full bg-secondary/50 overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
                 style={{ background: "var(--gradient-brand)" }}
                 initial={{ width: 0 }}
                 animate={{ width: `${overallPct}%` }}
-                transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 1.3, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               />
             </div>
 
             {/* Glow dot at progress position */}
             {overallPct > 0 && (
               <motion.div
-                className="absolute top-[calc(100%-2px)] w-2 h-2 rounded-full -translate-y-1/2"
+                className="absolute w-2.5 h-2.5 rounded-full -translate-y-1/2"
                 style={{
+                  top: "calc(100% + 1.5px)",
                   background: "hsl(20 100% 60%)",
-                  boxShadow: "0 0 8px 3px hsl(20 100% 60% / 0.5)",
+                  boxShadow: "0 0 8px 3px hsl(20 100% 60% / 0.45)",
                 }}
                 initial={{ left: 0, opacity: 0 }}
                 animate={{ left: `${Math.min(overallPct, 97)}%`, opacity: 1 }}
-                transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 1.3, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               />
             )}
           </motion.div>
@@ -164,23 +183,22 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
               animate="show"
             >
               {[
-                { icon: <Rocket size={15} />, label: "Plans", value: plans.length },
-                { icon: <Zap size={15} />, label: "Active", value: activePlans.length },
-                { icon: <CheckCircle2 size={15} />, label: "Done", value: completedTasks },
-                { icon: <Target size={15} />, label: "Tasks", value: totalTasks },
+                { icon: <Rocket size={14} />, label: "Plans",  value: plans.length },
+                { icon: <Zap size={14} />,    label: "Active", value: activePlans.length },
+                { icon: <CheckCircle2 size={14} />, label: "Done",  value: completedTasks },
+                { icon: <Target size={14} />, label: "Tasks",  value: totalTasks },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}
                   variants={fadeUp}
                   className="flex-1 flex flex-col items-center gap-1 py-3 relative"
                 >
-                  {/* vertical divider except first */}
                   {i > 0 && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-px h-6 bg-border/60" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-px h-6 bg-border/50" />
                   )}
-                  <div className="text-primary/80">{stat.icon}</div>
+                  <div className="text-primary/70">{stat.icon}</div>
                   <p className="text-xl font-extrabold text-foreground leading-none tabular-nums">
-                    <AnimatedNumber value={stat.value} />
+                    <StatNumber value={stat.value} />
                   </p>
                   <p className="text-[10px] text-muted-foreground font-medium">{stat.label}</p>
                 </motion.div>
@@ -193,7 +211,9 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
         {loading ? (
           <div className="space-y-2.5">
             {[1, 2].map((i) => (
-              <div key={i} className="rounded-2xl surface p-5 overflow-hidden relative h-20 animate-pulse" />
+              <div key={i} className="rounded-2xl h-20 animate-pulse"
+                style={{ background: "hsl(222 18% 10%)", boxShadow: "0 0 0 1px hsl(var(--border) / 0.4)" }}
+              />
             ))}
           </div>
         ) : plans.length === 0 ? (
@@ -203,11 +223,10 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Glowing rocket icon */}
             <div className="relative w-20 h-20 mx-auto mb-5">
               <div
                 className="absolute inset-0 rounded-3xl"
-                style={{ background: "var(--gradient-brand)", opacity: 0.15, filter: "blur(16px)" }}
+                style={{ background: "var(--gradient-brand)", opacity: 0.15, filter: "blur(18px)" }}
               />
               <div className="relative w-20 h-20 rounded-3xl gradient-brand flex items-center justify-center shadow-brand">
                 <Rocket size={32} className="text-white" />
@@ -228,12 +247,17 @@ export function HomeScreen({ plans, loading, onSelectPlan, onNewPlan }: HomeScre
           </motion.div>
         ) : (
           <motion.div variants={stagger} initial="hidden" animate="show">
-            <motion.p
+            <motion.div
               variants={fadeUp}
-              className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-4"
+              className="flex items-center justify-between mb-4"
             >
-              Recent Plans
-            </motion.p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
+                Recent Plans
+              </p>
+              <p className="text-[11px] text-muted-foreground/50 tabular-nums">
+                {recentPlans.length} of {plans.length}
+              </p>
+            </motion.div>
             <div className="space-y-2.5">
               {recentPlans.map((plan) => (
                 <motion.div key={plan.id} variants={fadeUp}>
