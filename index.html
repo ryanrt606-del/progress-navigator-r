@@ -1,31 +1,78 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Progress Tracker</title>
-    <meta name="description" content="Offline-first productivity tracker — create plans, break them into tasks, and ship." />
-    <meta name="author" content="Progress Tracker" />
+<head>
+  <meta charset="UTF-8" />
 
-    <!-- PWA / Mobile -->
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Tracker" />
-    <meta name="theme-color" content="#ff6b35" />
+  <!-- Viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Apple touch icon -->
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <!-- App Info -->
+  <title>Progress Navigator</title>
+  <meta name="description" content="Offline-first progress tracking app" />
+  <meta name="author" content="Progress Navigator" />
 
-    <!-- OG -->
-    <meta property="og:title" content="Progress Tracker" />
-    <meta property="og:description" content="Offline-first productivity tracker — create plans, break them into tasks, and ship." />
-    <meta property="og:type" content="website" />
+  <!-- Theme -->
+  <meta name="theme-color" content="#0f172a" />
 
-    <link rel="icon" href="/favicon.ico" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Navigator" />
+
+  <!-- ICONS -->
+  <link rel="icon" type="image/png" href="/icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+  <!-- SPLASH STYLE -->
+  <style>
+    #splash {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease;
+    }
+
+    #splash img {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+    }
+
+    .fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <img src="/icons/icon-512.png" alt="logo" />
+  </div>
+
+  <!-- APP ROOT -->
+  <div id="root"></div>
+
+  <!-- MAIN SCRIPT -->
+  <script type="module" src="/src/main.tsx"></script>
+
+  <!-- SPLASH LOGIC -->
+  <script>
+    window.addEventListener("load", () => {
+      const splash = document.getElementById("splash");
+      setTimeout(() => {
+        splash.classList.add("fade-out");
+      }, 800);
+    });
+  </script>
+
+</body>
 </html>

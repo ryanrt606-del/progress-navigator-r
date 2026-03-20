@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Progress Navigator</string>
+    <string name="title_activity_main">Progress Navigator</string>
+    <string name="package_name">com.progress.navigator</string>
+    <string name="custom_url_scheme">com.progress.navigator</string>
+</resources>
